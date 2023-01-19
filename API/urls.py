@@ -1,9 +1,7 @@
 from django.urls import path
 from API.views import UserList
 from rest_framework.urlpatterns import format_suffix_patterns
-
-
-
+from rest_framework_simplejwt import views as jwt_views
 from API.views import (
     UserView,
     GetAuthUserView,
@@ -15,12 +13,15 @@ from API.views import (
     GitProfileView,
     PostView,
     LikeUnlikeView,
-    CommentView
+    CommentView,
+    CustomTokenObtainPairView
 )
 
-
-
 urlpatterns = [
+    path('login/', CustomTokenObtainPairView.as_view(), name='login'),
+    path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify/', jwt_views.TokenVerifyView.as_view(), name='token_verify'),
+    
     path('get', UserList.as_view()),
 
     path('users', UserView.as_view()),

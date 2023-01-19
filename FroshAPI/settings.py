@@ -75,6 +75,14 @@ REST_FRAMEWORK = {
     )
 }
 
+# SIMPLE_JWT = {
+#     'ACCESS': 'access',
+# }
+
+# JWT_AUTH = {
+#     'JWT_SECRET_KEY': SECRET_KEY,
+# }
+
 
 TEMPLATES = [
     {

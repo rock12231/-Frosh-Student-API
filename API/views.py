@@ -12,6 +12,7 @@ import requests
 from django.conf import settings
 import jwt
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_jwt.utils import jwt_decode_handler
 
 from .serializers import (UserSerializer,ProfileSerializer,
@@ -23,17 +24,41 @@ from .models import (Profile, Experience,
                      Education, Post, 
                      Comment)
 
-# Create your views here.    
+# Create your views here.  
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    
+    @classmethod
+    def get_token(cls, user:User):
+        token = super().get_token(user)
+        token['username'] = user.username
+        token['email'] = user.email
+        token['user_id'] = user.id
+        return token 
+    
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        refresh = self.get_token(self.user)
+        data['refresh'] = str(refresh)
+        data['access'] = str(refresh.access_token)
+        data['username'] = self.user.username
+        data['email'] = self.user.email
+        data['id'] = self.user.id
+        return data
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
 class UserList(APIView):
     authentication_class = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     
     def get(self, request, format=None):
         token = request.headers.get('Authorization')
-        print(jwt, '======jwt=======')
-        print(jwt.decode(token,settings.SECRET_KEY, algorithms=['HS256']))
-        # decoded_payload = jwt_decode_handler(token)
-        # print(decoded_payload, '======decoded_payload=======')
+        # print(jwt, '======jwt=======')
+        # print(jwt.decode(token,settings.SECRET_KEY, algorithms=['HS256']))
+        # data = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256']).encode('ascii', 'ignore')
+
+        # print(data, '======decoded_payload=======')
         # payload = jwt.decode(jwt=token, key=settings.SECRET_KEY, algorithms=['HS256'])
         # print('payload 1 ' + str(payload))
         #add payload username to token 
